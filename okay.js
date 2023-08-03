@@ -157,50 +157,50 @@ $(document).on('submit', '.fn_subscribe_form', function(e) {
 });
 
 /* Функция добавления / удаления в папку сравнения */
-$(document).on('click', '.fn_comparison', function(e){
-    e.preventDefault();
-    var button = $( this ),
-        action = $( this ).hasClass( 'selected' ) ? 'delete' : 'add',
-        product = parseInt( $( this ).data( 'id' ) );
-    /* ajax запрос */
-    $.ajax( {
-        url: okay.router['comparison_ajax'],
-        data: { product: product, action: action },
-        dataType: 'json',
-        success: function(data) {
-            $( '#comparison' ).html( data.template );
-            /* Смена класса кнопки */
-            if( action == 'add' ) {
-                button.addClass( 'selected' );
-            } else if( action == 'delete' ) {
-                button.removeClass( 'selected' );
-            }
-            /* Смена тайтла */
-            if( button.attr( 'title' ) ) {
-                var text = button.data( 'result-text' ),
-                    title = button.attr( 'title' );
-                button.data( 'result-text', title );
-                button.attr( 'title', text );
-            }
-            /* Если находимся на странице сравнения - перезагрузить */
-            if( $( '.fn_comparison_products' ).length ) {
-                window.location = window.location;
-            }
-        }
-    });
-    /* Попап Товар добавлен в сравнение */
-    if( !button.hasClass( 'selected' ) ) {
-        $.fancybox.open({
-            src: '#fn_compare_confirm',
-            type : 'inline',
-            opts : {
-                afterLoad : function() {
-                    setTimeout( function() {$.fancybox.close(); },1500);
-                }
-            }
-        });
+$(document).on('click', '.fn_comparison', function(e) {
+  e.preventDefault();
+
+  const button = $(this);
+  const action = button.hasClass('selected') ? 'delete' : 'add';
+  const product = parseInt(button.data('id'));
+
+  $.ajax({
+    url: okay.router['comparison_ajax'],
+    data: { product, action }, // Используем сокращенный синтаксис для объекта
+    dataType: 'json',
+  }).done((data) => {
+    $('#comparison').html(data.template);
+
+    // Используем метод toggleClass() для смены класса
+    button.toggleClass('selected', action === 'add');
+
+    // Используем деструктуризацию для улучшения читаемости
+    if (button.attr('title')) {
+      const { resultText, title } = button.data();
+      button.data('result-text', title).attr('title', resultText);
     }
+
+    // Используем метод length для проверки наличия элемента с классом fn_comparison_products
+    if ($('.fn_comparison_products').length) {
+      window.location.reload(); // Просто перезагружаем страницу вместо присваивания нового значения window.location
+    }
+  });
+
+  if (!button.hasClass('selected')) {
+    $.fancybox.open({
+      src: '#fn_compare_confirm',
+      type: 'inline',
+      opts: {
+        afterLoad: () => {
+          setTimeout(() => {
+            $.fancybox.close();
+          }, 1500);
+        },
+      },
+    });
+  }
 });
+
 
 /* Функция добавления / удаления в папку избранного */
 $(document).on('click', '.fn_wishlist', function(e){
